@@ -5,9 +5,9 @@
 <configuration>
     <properties resource="db.properties" />
 
-
+<!--给domain配别名-->
     <typeAliases>
-
+        <package name="cn.itxynet.OrderingMgr.settings.domain"/>
     </typeAliases>
 
 
@@ -28,6 +28,6 @@
             批量注册：
                 name：指向dao层的包，表示在该dao包下，所有的mapper映射文件自动注册。
         -->
-<!--       <package name="com.xiyuan.dao"/>-->
+        <package name="cn.itxynet.OrderingMgr.settings.dao"/>
     </mappers>
 </configuration>
