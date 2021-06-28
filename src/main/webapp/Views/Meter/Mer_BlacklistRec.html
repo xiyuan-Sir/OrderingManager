@@ -1,0 +1,230 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>黑名单记录列表</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="../../css/oksub.css">
+    <script type="text/javascript" src="../../lib/loading/okLoading.js"></script>
+</head>
+<body>
+    <div class="ok-body">
+        <!--查询条件-->
+        <div class="layui-row">
+            <fieldset class="layui-elem-field layui-field-title" style="margin-top: 20px;">
+                <legend>查询条件</legend>
+            </fieldset>
+            <form class="layui-form ok-search-form">
+                <div class="layui-form-item">
+                    <div class="layui-inline">
+                        <label class="layui-form-label">所属公司：</label>
+                        <div class="layui-input-inline">
+                            <select id="dropCompany" lay-verify="" lay-search></select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">所属小区：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="txtVillage" class="layui-input" placeholder="请输入小区名" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">表厂家：</label>
+                        <div class="layui-input-inline">
+                            <!--<select id="dropFactor" lay-verify="" lay-search></select>-->
+                            <select name="Factor" id="dropFactor" lay-verify="">
+                                <option value="">请选择</option>
+                                <option value="010">厂家1</option>
+                                <option value="021">厂家2</option>
+                                <option value="0571">厂家3</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">用户编号：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="txtUserNumber" class="layui-input" placeholder="请输入用户编号" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">用户姓名：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="txtUserName" class="layui-input" placeholder="请输入用户姓名" autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">用户地址：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" id="txtAddress" class="layui-input" placeholder="请输入用户地址 " autocomplete="off">
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">操作指令：</label>
+                        <div class="layui-input-inline">
+                            <select name="ValveType" id="dropValveType" lay-verify="">
+                                <option value="">请选择</option>
+                                <option value="010">厂家1</option>
+                                <option value="021">厂家2</option>
+                                <option value="012">厂家3</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="layui-inline">
+                        <label class="layui-form-label">操作时间：</label>
+                        <div class="layui-input-inline">
+                            <input type="text" class="layui-input" id="opDate" placeholder="yyyy-MM-dd">
+                        </div>
+                    </div>
+                </div>
+                <div class="layui-form-item" style="text-align:right">
+                    <div class="layui-inline">
+                        <div class="layui-input-inline">
+                            <button type="button" class="layui-btn layui-btn-sm layui-icon layui-icon-search" id="btnSeach" lay-submit="" lay-filter="search"> 查询 </button>
+                            <button type="reset" class="layui-btn  layui-btn-primary layui-btn-sm layui-icon layui-icon-refresh"> 重置 </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+
+        <!--工具栏-->
+        <!--<div style="display:none;" id="ValveTableToolBar">
+            <button type="button" class="layui-btn layui-btn-sm layui-icon layui-icon-addition" lay-event="add">添加</button>
+        </div>-->
+        <!--数据表格-->
+        <table class="layui-hide" id="RoleTable" lay-filter="ValveTablefilter"></table>
+        <!-- 行工具栏 -->
+        <!--<script type="text/html" id="operationTpl">
+            {{#  if(d.isON == 1){ }}
+            <a class="layui-btn layui-btn-sm layui-icon layui-icon-edit" lay-event="edit">编辑</a>
+            <a class="layui-btn layui-btn-warm layui-btn-sm layui-icon layui-icon-close" lay-event="del">停用</a>
+            {{#  } else if(d.isON == 0){ }}
+            <a class="layui-btn layui-btn-sm layui-icon layui-icon-edit" lay-event="edit">编辑</a>
+            <a class="layui-btn layui-btn-normal layui-btn-sm layui-icon layui-icon-ok" lay-event="on">启用</a>
+            {{#  } }}
+        </script>-->
+
+    </div>
+    <!--js逻辑-->
+    <script src="/js/CheckLogin.js"></script>
+    <script src="../../lib/layui/layui.js"></script>
+    <script src="/js/okconfig.js"></script>
+    <script>
+        layui.use(["element", "table", "form", "laydate", "layer", "okUtils", "okMock", "jquery", "tree"], function () {
+            let table = layui.table;
+            let form = layui.form;
+            let laydate = layui.laydate;
+            let layer = layui.layer;
+            let okUtils = layui.okUtils;
+            let okMock = layui.okMock;
+            let $ = layui.jquery;
+            let tree = layui.tree;
+            
+            //时间控件渲染
+            laydate.render({ elem: "#opDate" });
+            //下拉框渲染
+            DropListDownRender(JSON.parse(sessionStorage.getItem('loginUserInfo')).Companys, $("#dropCompany"), form);
+
+            //查询条件
+            function FilterStr() {
+                var filter = "1=1";
+                if ($('#dropCompany').val() != '')
+                    filter += " and r.CompanyID=" + $('#dropCompany').val();
+
+                if ($('#txtVillage').val() != '')
+                    filter += " and r.isON=" + $('#txtVillage').val();
+
+                if ($('#dropFactor').val().length > 0)
+                    filter += " and RoleName='" + $('#dropFactor').val() + "'";
+
+                if ($('#txtUserNumber').val().length > 0)
+                    filter += " and r.CreateDate >='" + $('#txtUserNumber').val() + "'";
+
+                if ($('#dropFactor').val().length > 0)
+                    filter += " and RoleName='" + $('#dropFactor').val() + "'";
+
+                if ($('#txtUserName').val().length > 0)
+                    filter += " and RoleName='" + $('#txtUserName').val() + "'";
+
+                if ($('#txtAddress').val().length > 0)
+                    filter += " and RoleName='" + $('#txtAddress').val() + "'";
+
+                if ($('#dropValveType').val().length > 0)
+                    filter += " and RoleName='" + $('#dropValveType').val() + "'";
+
+                if ($('#opDate').val().length > 0)
+                    filter += " and RoleName='" + $('#opDate').val() + "'";
+
+                return filter;
+            }
+
+
+            let roleTable = table.render({
+                elem: "#RoleTable",
+                url: WebConfig.ServiceUrl + '/api/System/GetRoleList',
+                method: 'post',
+                where: { Filter: FilterStr() },
+                contentType: 'application/json;charset=UTF-8',
+                parseData: function (res) { //res 即为原始返回的数据
+                    if (res.respCode == 1000) {
+                        return {
+                            "code": res.Data.code, //解析接口状态
+                            "msg": res.Data.msg, //解析提示文本
+                            "count": res.Data.count, //解析数据长度
+                            "data": res.Data.data //解析数据列表
+
+                        };
+                    }
+                    else {
+                        return {
+                            "code": 1, //解析接口状态
+                            "msg": res.respMsg, //解析提示文本
+                            "count": 0, //解析数据长度
+                            "data": null //解析数据列表
+                        };
+                    }
+                },
+                title: "阀控记录列表",
+                toolbar: "#ValveTableToolBar",
+                cellMinWidth: 95,
+                page: true,
+                limits: [10, 20, 30, 40],
+                limit: 10,
+                loading: true,
+                height: 'full-300',
+                cols: [[
+                    { type: "numbers", title: "序号" },
+                    { field: "CompanyName", title: "所属公司", align: "center" },
+                    { field: "", title: "所属小区", align: "center" },
+                    { field: "RoleName", title: "表厂家", align: "center" },
+                    { field: "RoleName", title: "燃气表号", align: "center" },
+                    { field: "RoleName", title: "用户编号", align: "center" },
+                    { field: "RoleName", title: "用户姓名", align: "center" },
+                    { field: "RoleName", title: "用户地址", align: "center" },
+                    { field: "RoleName", title: "操作指令", align: "center" },
+                    { field: "optName", title: "操作时间", align: "center" },
+                    { field: "RoleName", title: "操作人", align: "center" },
+                    { field: "Memo", title: "原因", align: "center" }
+                ]]
+            });
+
+            okLoading.close();
+            
+            //查
+            form.on("submit(search)", function (data) {
+                BindData();
+            });
+
+            function BindData() {
+                roleTable.reload({
+                    url: WebConfig.ServiceUrl + '/api/System/GetRoleList',
+                    where: { Filter: FilterStr() },
+                    page: { curr: 1 }
+                });
+                return false;
+            }
+        })
+    </script>
+
+</body>
+</html>

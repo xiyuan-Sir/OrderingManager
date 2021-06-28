@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>登录--点餐管理系统</title>
+    <link rel="shortcut icon" href="images/favicon.ico" type="image/x-icon" />
+    <link href="css/login.css" rel="stylesheet" />
+</head>
+<body>
+    <div class="bg1"></div>
+    <div class="gyl">
+        点餐管理系统
+        <div class="gy2">Copyright ©2020 河北省保定市顺平县北城村</div>
+    </div>
+    <div class="bg">
+        <div class="wel">用户登录</div>
+        <div class="user">
+            <div id="txt_yhm" style="">用户名</div>
+            <input type="text" name="用户" id="txt_name" placeholder="请输入账号"/>
+        </div>
+        <div class="password">
+            <div id="txt_yhmm">密&nbsp;&nbsp;&nbsp;码</div>
+            <input class="" type="password" id="txt_password" placeholder="请输入密码"/>
+        </div>
+        <input class="btn" id="btn_login" type="button" name="登录" value="登录" />
+    </div>
+    <script src="js/md5.js"></script>
+    <script src="js/okconfig.js"></script>
+    <script src="lib/layui/layui.js"></script>
+    <script type="text/javascript">
+        layui.use(["element", "jquery", "okLayer", "okCookie", "okUtils"], function () {
+            let $ = layui.jquery;
+            let okLayer = layui.okLayer;
+            let okUtils = layui.okUtils;
+
+            document.onkeydown = function (e) { // 回车提交表单
+                // 兼容FF和IE和Opera
+                var theEvent = window.event || e;
+                var code = theEvent.keyCode || theEvent.which || theEvent.charCode;
+                if (code == 13) {
+                    $("#btn_login").click();
+                }
+            }
+
+            $("#btn_login").click(function () {
+                var account = $("#txt_name").val();
+                var pass = $("#txt_password").val();
+                if (okUtils.string.isNullOrEmpty(account) == "" || okUtils.string.isNullOrEmpty(pass) == "") {
+                    layer.msg("请输入用户名或密码!", { icon: 5, time: 1500, offset: 'auto', anim: 6 });
+                } else {
+                    if (typeof window.localStorage == 'undefined') {
+                        layer.msg("系统不兼容该浏览器，请更换IE8+的浏览器!", { icon: 5, time: 1500, offset: 'auto', anim: 6 });
+                        return;
+                    }
+					
+                    layer.msg("登陆中...", { icon: 6, time: 1500, anim: 4 }, function () {
+                        pass = hex_md5(pass);
+                        $.ajax({
+                            url: WebConfig.ServiceUrl + '/api/System/Login',
+                            type: 'POST',
+                            contentType: 'application/json;charset=UTF-8',
+                            data: JSON.stringify({ LoginName: account, PassWord: pass }),
+                            success: function (rdata) {
+                                if (rdata.respCode == 1000) {
+                                    sessionStorage.setItem('loginUserInfo', JSON.stringify(rdata.Data));
+                                    window.location = "main.html";
+                                }
+                                else
+                                    layer.msg(rdata.respMsg, { icon: 5, time: 1500, offset: 'auto', anim: 6 });
+                            },
+                            error: function (e) {
+                                layer.msg("连接不到服务器，请稍后重试!", { icon: 5, time: 1500, offset: 'auto', anim: 6 });
+                            }
+                        });
+                    });
+					
+                }
+            });
+        });
+    </script>
+</body>
+
+</html>
